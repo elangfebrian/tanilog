@@ -17,6 +17,7 @@ class SiklusController
 
         $sql = "SELECT s.id, s.siklus_ke, s.tanggal_mulai, s.status, s.populasi_awal,
                        u.nama AS unit_nama, u.tipe AS unit_tipe, k.nama AS komoditas,
+                       k.durasi_panen_hari,
                        r.umur_hari, r.populasi_hidup, r.sr_persen, r.total_pakan_kg,
                        r.bobot_terakhir_g, r.fcr
                 FROM siklus s
@@ -41,6 +42,7 @@ class SiklusController
                 'unit_nama'        => $r['unit_nama'],
                 'unit_tipe'        => $r['unit_tipe'],
                 'komoditas'        => $r['komoditas'],
+                'durasi_panen_hari' => (int) $r['durasi_panen_hari'],
                 'status'           => $r['status'],
                 'tanggal_mulai'    => $r['tanggal_mulai'],
                 'umur_hari'        => (int) $r['umur_hari'],
