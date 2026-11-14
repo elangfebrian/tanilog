@@ -1,0 +1,17 @@
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+*.iml
+.idea/
+.vscode/
+
+# PHP backend: jangan unggah kredensial
+backend/config.php
+backend/.env
+backend/vendor/
+
+# Sistem
+.DS_Store
+Thumbs.db
