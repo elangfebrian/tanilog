@@ -131,6 +131,73 @@ Mengubah status ke `selesai`/`gagal` mengisi `tanggal_selesai` dengan hari ini b
   - Bila belum ada sampling: tanggal mulai + durasi panen standar. `metode`: `umur_standar`.
   - `sisa_hari` negatif berarti sudah melewati perkiraan.
 
+## Catatan harian: pakan, kematian, sampling bobot
+Ketiganya berpola sama; `{jenis}` adalah `pakan`, `kematian`, atau `sampling`.
+Semua butuh login dan hanya untuk siklus milik pengguna sendiri.
+
+| Metode | Alamat | Fungsi |
+|--------|--------|--------|
+| GET | `/siklus/{id}/{jenis}` | Daftar catatan (terbaru dulu) + total |
+| POST | `/siklus/{id}/{jenis}` | Tambah catatan (hanya siklus `aktif`, selain itu 409) |
+| PUT | `/siklus/{id}/{jenis}/{cid}` | Ubah catatan (kirim ulang seluruh isian) |
+| DELETE | `/siklus/{id}/{jenis}/{cid}` | Hapus catatan |
+
+Body:
+- **pakan:** `{ "jumlah_kg": 12.5, "waktu": "2026-11-14 17:00", "catatan": "opsional" }`.
+  `waktu` bila kosong = sekarang.
+- **kematian:** `{ "jumlah": 3, "tanggal": "2026-11-14", "penyebab": "opsional" }`.
+  Total kematian tidak boleh melebihi populasi awal.
+- **sampling:** `{ "bobot_rata_g": 128, "jumlah_sampel": 20, "tanggal": "2026-11-14" }`.
+  `jumlah_sampel` bila kosong = 1.
+
+`tanggal` bila kosong = hari ini. Tanggal tidak boleh sebelum tanggal mulai siklus dan tidak boleh
+lebih dari besok (422).
+
+Respons POST, PUT, dan DELETE menyertakan `ringkasan` terbaru agar layar bisa langsung menampilkan
+angka setelah menyimpan:
+```json
+{ "catatan": { "id": 7, "waktu": "2026-11-14 17:00:00", "jumlah_kg": 12.5, "catatan": null },
+  "ringkasan": { "populasi_hidup": 1876, "total_mati": 124, "sr_persen": 93.8,
+                 "total_pakan_kg": 265.5, "bobot_terakhir_g": 128, "fcr": 1.15 } }
+```
+
+## Keuangan dan panen
+
+| Metode | Alamat | Fungsi |
+|--------|--------|--------|
+| GET | `/siklus/{id}/transaksi` | Daftar transaksi + rincian per kategori + laba rugi |
+| POST | `/siklus/{id}/transaksi` | Tambah modal atau pendapatan |
+| DELETE | `/siklus/{id}/transaksi/{tid}` | Hapus transaksi |
+| GET | `/siklus/{id}/panen` | Data panen (404 bila belum panen) |
+| POST | `/siklus/{id}/panen` | Catat panen |
+| DELETE | `/siklus/{id}/panen` | Batalkan panen |
+
+**POST /siklus/{id}/transaksi**
+```json
+{ "tipe": "modal", "kategori": "pakan", "tanggal": "2026-11-14", "keterangan": "Pelet 25 kg", "jumlah_rp": 300000 }
+```
+- `tipe` `modal`: kategori `bibit`, `pakan`, `obat`, `tenaga`, `listrik`, atau `lainnya`.
+- `tipe` `pendapatan`: kategori hanya `penjualan`.
+- Transaksi yang dibuat otomatis dari panen (`dari_panen: true`) tidak bisa dihapus langsung (409);
+  batalkan lewat `DELETE /siklus/{id}/panen`.
+
+**POST /siklus/{id}/panen**
+```json
+{ "tanggal": "2026-11-23", "jumlah_ekor": 1800, "bobot_total_kg": 430, "harga_per_kg": 22000 }
+```
+Satu panen per siklus. Dalam satu transaksi database, server: (1) menyimpan panen, (2) membuat
+pendapatan `penjualan` sebesar bobot x harga, (3) mengubah siklus menjadi `selesai`.
+`jumlah_ekor` tidak boleh melebihi populasi hidup (422).
+`DELETE` membatalkan semuanya: pendapatan terhapus dan siklus kembali `aktif`
+(ditolak 409 bila unit sudah punya siklus aktif lain).
+
+Respons berisi `panen` (termasuk `bobot_rata_g` dan `total_rp`) dan `keuangan`
+(`total_modal`, `total_pendapatan`, `laba_rugi`). Rumus: laba rugi = total pendapatan - total modal.
+
+## Pengujian
+- `php backend/tests/HitungTest.php` menguji perhitungan estimasi panen dan validasi (tanpa database).
+- Seluruh endpoint di dokumen ini diuji lewat HTTP terhadap MySQL/MariaDB, termasuk
+  pemisahan data antar pengguna (data milik pengguna lain selalu dijawab 404).
+
 ## Rencana endpoint berikutnya
-`/siklus/{id}/pakan`, `/siklus/{id}/kematian`, `/siklus/{id}/sampling`, `/siklus/{id}/transaksi`,
-`/siklus/{id}/panen`, `/siklus/{id}/jadwal-pakan`, `/admin/komoditas`, `/admin/standar`.
+`/siklus/{id}/jadwal-pakan` (untuk pengingat), `/admin/komoditas`, `/admin/standar`.

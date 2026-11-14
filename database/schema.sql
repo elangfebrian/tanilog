@@ -170,24 +170,12 @@ CREATE TABLE sampling_bobot (
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------
--- 8. Keuangan: modal (biaya) dan pendapatan per siklus
+-- 8. Panen dan keuangan
 -- ---------------------------------------------------------------------
-CREATE TABLE transaksi (
-  id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  siklus_id  INT UNSIGNED NOT NULL,
-  tipe       ENUM('modal','pendapatan') NOT NULL,
-  kategori   ENUM('bibit','pakan','obat','tenaga','listrik','lainnya','penjualan') NOT NULL,
-  tanggal    DATE NOT NULL,
-  keterangan VARCHAR(150) NULL,
-  jumlah_rp  DECIMAL(14,2) NOT NULL,
-  PRIMARY KEY (id),
-  KEY idx_transaksi_siklus (siklus_id, tipe),
-  CONSTRAINT fk_transaksi_siklus FOREIGN KEY (siklus_id)
-    REFERENCES siklus (id) ON DELETE CASCADE
-) ENGINE=InnoDB;
 
--- Hasil panen. Saat panen dicatat, aplikasi juga membuat satu baris
--- transaksi bertipe 'pendapatan' dan menandai siklus sebagai 'selesai'.
+-- Hasil panen (satu per siklus). Saat panen dicatat, aplikasi juga membuat satu baris
+-- transaksi 'pendapatan' yang menunjuk ke baris panen ini (transaksi.panen_id) dan menandai
+-- siklus 'selesai'. Bila panen dibatalkan, transaksi pendapatannya ikut terhapus (CASCADE).
 CREATE TABLE panen (
   id             INT UNSIGNED NOT NULL AUTO_INCREMENT,
   siklus_id      INT UNSIGNED NOT NULL,
@@ -196,9 +184,27 @@ CREATE TABLE panen (
   bobot_total_kg DECIMAL(10,2) NOT NULL,
   harga_per_kg   DECIMAL(12,2) NOT NULL,
   PRIMARY KEY (id),
-  KEY idx_panen_siklus (siklus_id),
+  UNIQUE KEY uq_panen_siklus (siklus_id),
   CONSTRAINT fk_panen_siklus FOREIGN KEY (siklus_id)
     REFERENCES siklus (id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Modal (biaya) dan pendapatan per siklus
+CREATE TABLE transaksi (
+  id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  siklus_id  INT UNSIGNED NOT NULL,
+  tipe       ENUM('modal','pendapatan') NOT NULL,
+  kategori   ENUM('bibit','pakan','obat','tenaga','listrik','lainnya','penjualan') NOT NULL,
+  tanggal    DATE NOT NULL,
+  keterangan VARCHAR(150) NULL,
+  jumlah_rp  DECIMAL(14,2) NOT NULL,
+  panen_id   INT UNSIGNED NULL,                           -- terisi bila dibuat otomatis dari panen
+  PRIMARY KEY (id),
+  KEY idx_transaksi_siklus (siklus_id, tipe),
+  CONSTRAINT fk_transaksi_siklus FOREIGN KEY (siklus_id)
+    REFERENCES siklus (id) ON DELETE CASCADE,
+  CONSTRAINT fk_transaksi_panen FOREIGN KEY (panen_id)
+    REFERENCES panen (id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- =====================================================================
@@ -323,3 +329,18 @@ INSERT INTO transaksi (siklus_id, tipe, kategori, tanggal, keterangan, jumlah_rp
   (2, 'modal', 'pakan',   '2026-10-01', 'Pakan pelet tahap awal', 1200000),
   (2, 'modal', 'pakan',   '2026-10-25', 'Pakan pelet tahap lanjut', 1344000),
   (2, 'modal', 'obat',    '2026-10-26', 'Probiotik dan obat', 150000);
+
+-- Siklus 1 (lele, Kolam A1, sudah dipanen) sebagai pembanding siklus 4
+INSERT INTO catatan_pakan (siklus_id, waktu, jumlah_kg, catatan) VALUES
+  (1, '2026-06-30 07:00:00', 520.00, 'Rekap pakan seluruh siklus (data contoh)');
+INSERT INTO catatan_kematian (siklus_id, tanggal, jumlah, penyebab) VALUES
+  (1, '2026-07-10', 150, 'Rekap kematian seluruh siklus (data contoh)');
+INSERT INTO sampling_bobot (siklus_id, tanggal, jumlah_sampel, bobot_rata_g) VALUES
+  (1, '2026-08-18', 20, 245.00);
+INSERT INTO panen (id, siklus_id, tanggal, jumlah_ekor, bobot_total_kg, harga_per_kg) VALUES
+  (1, 1, '2026-08-19', 1850, 450.00, 21000.00);
+INSERT INTO transaksi (siklus_id, tipe, kategori, tanggal, keterangan, jumlah_rp, panen_id) VALUES
+  (1, 'modal',      'bibit',     '2026-06-20', 'Bibit lele 2.000 ekor', 700000,  NULL),
+  (1, 'modal',      'pakan',     '2026-07-15', 'Pakan pelet',           6240000, NULL),
+  (1, 'modal',      'obat',      '2026-07-20', 'Probiotik dan obat',    180000,  NULL),
+  (1, 'pendapatan', 'penjualan', '2026-08-19', 'Panen 450 kg',          9450000, 1);
