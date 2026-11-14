@@ -301,6 +301,7 @@ INSERT INTO jadwal_pakan (siklus_id, jam, jumlah_kg) VALUES
   (2, '07:00:00', 12.50), (2, '12:00:00', 12.50), (2, '17:00:00', 12.50);
 
 INSERT INTO catatan_pakan (siklus_id, waktu, jumlah_kg, catatan) VALUES
+  (2, '2026-10-15 07:00:00', 215.50, 'Rekap pakan 22 Sep - 4 Nov (data contoh)'),
   (2, '2026-11-05 07:10:00', 12.50, NULL),
   (2, '2026-11-05 17:05:00', 12.50, NULL),
   (2, '2026-11-06 07:10:00', 12.50, NULL);
