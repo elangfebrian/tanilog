@@ -1,0 +1,15 @@
+# Arahkan semua permintaan ke index.php (URL bersih: /auth/login)
+RewriteEngine On
+
+# Teruskan header Authorization ke PHP (Apache sering membuangnya)
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+
+# Jangan sajikan file konfigurasi
+<FilesMatch "^config(\.example)?\.php$">
+    Require all denied
+</FilesMatch>
