@@ -70,5 +70,11 @@ cek('posInt "abc" ditolak',     Valid::posInt('abc'), null);
 cek('number "12.5"',            Valid::number('12.5'), 12.5);
 cek('number "abc" ditolak',     Valid::number('abc'), null);
 
+cek('waktu "2026-11-14 07:30"',  Valid::datetime('2026-11-14 07:30'), '2026-11-14 07:30:00');
+cek('waktu format T',            Valid::datetime('2026-11-14T07:30:15'), '2026-11-14 07:30:15');
+cek('waktu jam 25 ditolak',      Valid::datetime('2026-11-14 25:00'), null);
+cek('waktu hanya tanggal ditolak', Valid::datetime('2026-11-14'), null);
+cek('waktu bukan string',        Valid::datetime(12345), null);
+
 echo $gagal === 0 ? "\nSemua tes lulus\n" : "\n$gagal tes GAGAL\n";
 exit($gagal === 0 ? 0 : 1);

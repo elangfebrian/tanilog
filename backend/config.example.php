@@ -17,6 +17,7 @@ return [
     ],
     'jwt_secret' => 'GANTI_DENGAN_HASIL_PERINTAH_DI_ATAS_MINIMAL_32_KARAKTER',
     'jwt_ttl'    => 60 * 60 * 24 * 7,   // masa berlaku token: 7 hari
+    'timezone'   => 'Asia/Jakarta',     // dipakai untuk "hari ini" dan batas tanggal catatan
     'cors_origin' => '*',               // saat pengembangan; batasi bila di-hosting
     'debug'      => true,               // tampilkan pesan error rinci (matikan di hosting)
 ];

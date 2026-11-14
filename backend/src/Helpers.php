@@ -14,6 +14,21 @@ class Valid
         return $d !== false && $d->format('Y-m-d') === $s;
     }
 
+    /** Waktu 'YYYY-MM-DD HH:MM[:SS]' (pemisah 'T' boleh); dinormalkan ke 'Y-m-d H:i:s', atau null. */
+    public static function datetime($s): ?string
+    {
+        if (!is_string($s)) {
+            return null;
+        }
+        foreach (['Y-m-d H:i:s', 'Y-m-d H:i', 'Y-m-d\TH:i:s', 'Y-m-d\TH:i'] as $format) {
+            $d = DateTime::createFromFormat($format, $s);
+            if ($d !== false && $d->format($format) === $s) {
+                return $d->format('Y-m-d H:i:s');
+            }
+        }
+        return null;
+    }
+
     /** Bilangan bulat positif dari JSON (5, "5", 5.0), selain itu null. */
     public static function posInt($v): ?int
     {
