@@ -6,6 +6,7 @@ import '../core/fmt.dart';
 import '../core/theme.dart';
 import '../state/siklus_state.dart';
 import 'catat_screen.dart';
+import 'grafik_screen.dart';
 
 num? _n(dynamic v) => v is num ? v : (v is String ? num.tryParse(v) : null);
 
@@ -132,6 +133,19 @@ class _SiklusDetailScreenState extends State<SiklusDetailScreen> {
                               : '-'),
                         ]),
                       ]),
+                      OutlinedButton.icon(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => GrafikScreen(
+                              siklusId: widget.siklusId,
+                              judul: '${sik?['unit_nama']} · Siklus ${sik?['siklus_ke']}',
+                            ),
+                          ),
+                        ),
+                        icon: const Icon(Icons.show_chart),
+                        label: const Text('Lihat grafik pertumbuhan'),
+                      ),
+                      const SizedBox(height: 12),
                       _Kartu(judul: 'Keuangan', anak: [
                         Row(children: [
                           _Ang('Modal', Fmt.rupiah(_n(k['total_modal']) ?? 0)),

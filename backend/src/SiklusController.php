@@ -390,4 +390,45 @@ class SiklusController
             ],
         ];
     }
+    /** GET /siklus/{id}/grafik : kurva standar vs bobot aktual (hasil sampling), untuk grafik pertumbuhan */
+    public function grafik(array $params = []): void
+    {
+        $user = Auth::user();
+        $s = Milik::siklus(Valid::idParam($params), (int) $user['sub']);
+        $pdo = Database::pdo();
+
+        $std = $pdo->prepare(
+            'SELECT hari_ke, bobot_standar_g FROM standar_pertumbuhan WHERE komoditas_id = ? ORDER BY hari_ke'
+        );
+        $std->execute([$s['komoditas_id']]);
+        $standar = array_map(function (array $r): array {
+            return ['hari' => (int) $r['hari_ke'], 'bobot_g' => (float) $r['bobot_standar_g']];
+        }, $std->fetchAll());
+
+        $smp = $pdo->prepare(
+            'SELECT tanggal, bobot_rata_g FROM sampling_bobot WHERE siklus_id = ? ORDER BY tanggal, id'
+        );
+        $smp->execute([$s['id']]);
+        $mulai = new DateTime((string) $s['tanggal_mulai']);
+
+        $aktual = [];
+        if ((float) $s['bobot_awal_g'] > 0) {
+            $aktual[] = ['hari' => 0, 'tanggal' => $s['tanggal_mulai'], 'bobot_g' => (float) $s['bobot_awal_g']];
+        }
+        foreach ($smp->fetchAll() as $r) {
+            $hari = (int) $mulai->diff(new DateTime((string) $r['tanggal']))->format('%r%a');
+            $aktual[] = ['hari' => $hari, 'tanggal' => $r['tanggal'], 'bobot_g' => (float) $r['bobot_rata_g']];
+        }
+
+        $kom = $pdo->prepare('SELECT durasi_panen_hari, target_bobot_panen_g FROM komoditas WHERE id = ?');
+        $kom->execute([$s['komoditas_id']]);
+        $kom = $kom->fetch();
+
+        Response::json([
+            'durasi_panen_hari'    => (int) $kom['durasi_panen_hari'],
+            'target_bobot_panen_g' => (float) $kom['target_bobot_panen_g'],
+            'standar'              => $standar,
+            'aktual'               => $aktual,
+        ]);
+    }
 }

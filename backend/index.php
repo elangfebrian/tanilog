@@ -66,6 +66,7 @@ $siklus = new SiklusController();
 $router->add('GET',    '/siklus',        [$siklus, 'index']);
 $router->add('POST',   '/siklus',        [$siklus, 'store']);
 $router->add('GET',    '/siklus/{id}',   [$siklus, 'show']);
+$router->add('GET',    '/siklus/{id}/grafik', [$siklus, 'grafik']);
 $router->add('PUT',    '/siklus/{id}',   [$siklus, 'update']);
 $router->add('DELETE', '/siklus/{id}',   [$siklus, 'destroy']);
 

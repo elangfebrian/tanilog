@@ -131,6 +131,15 @@ Mengubah status ke `selesai`/`gagal` mengisi `tanggal_selesai` dengan hari ini b
   - Bila belum ada sampling: tanggal mulai + durasi panen standar. `metode`: `umur_standar`.
   - `sisa_hari` negatif berarti sudah melewati perkiraan.
 
+### GET /siklus/{id}/grafik
+Data grafik pertumbuhan: kurva standar komoditas dan bobot nyata hasil sampling.
+`hari` = selisih tanggal dengan `tanggal_mulai`. Titik hari 0 (`bobot_awal_g`) ikut bila terisi.
+```json
+{ "durasi_panen_hari": 60, "target_bobot_panen_g": 250,
+  "standar": [ { "hari": 0, "bobot_g": 5 }, { "hari": 10, "bobot_g": 15 } ],
+  "aktual":  [ { "hari": 0, "tanggal": "2026-09-22", "bobot_g": 5 }, { "hari": 44, "tanggal": "2026-11-05", "bobot_g": 128 } ] }
+```
+
 ## Catatan harian: pakan, kematian, sampling bobot
 Ketiganya berpola sama; `{jenis}` adalah `pakan`, `kematian`, atau `sampling`.
 Semua butuh login dan hanya untuk siklus milik pengguna sendiri.
