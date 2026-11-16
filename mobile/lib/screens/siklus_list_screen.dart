@@ -6,6 +6,7 @@ import '../core/theme.dart';
 import '../state/auth_state.dart';
 import '../state/siklus_state.dart';
 import '../widgets/siklus_card.dart';
+import 'siklus_baru_screen.dart';
 import 'siklus_detail_screen.dart';
 
 /// Dipakai untuk tab Beranda (hanya siklus aktif) dan tab Siklus (semua).
@@ -49,6 +50,19 @@ class _SiklusListScreenState extends State<SiklusListScreen> {
             ] else
               const Text('Semua siklus', style: AppText.h1),
             const SizedBox(height: 12),
+            FilledButton.icon(
+              onPressed: () async {
+                final bool? ok = await Navigator.of(context).push<bool>(
+                  MaterialPageRoute<bool>(builder: (_) => const SiklusBaruScreen()),
+                );
+                if (ok == true && mounted) {
+                  context.read<SiklusState>().muat();
+                }
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Siklus baru'),
+            ),
+            const SizedBox(height: 12),
             if (st.loading && st.daftar.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(32),
@@ -66,9 +80,14 @@ class _SiklusListScreenState extends State<SiklusListScreen> {
               for (final s in items)
                 SiklusCard(
                   s: s,
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(builder: (_) => SiklusDetailScreen(siklusId: s.id)),
-                  ),
+                  onTap: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute<void>(builder: (_) => SiklusDetailScreen(siklusId: s.id)),
+                    );
+                    if (mounted) {
+                      context.read<SiklusState>().muat();
+                    }
+                  },
                 ),
           ],
         ),

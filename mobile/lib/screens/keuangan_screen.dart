@@ -15,6 +15,10 @@ String _iso(DateTime d) =>
 
 double? _angka(String s) => double.tryParse(s.trim().replaceAll(',', '.'));
 
+/// Rupiah gaya Indonesia: titik = pemisah ribuan ("22.000" -> 22000), koma = desimal.
+double? _rupiah(String s) =>
+    double.tryParse(s.trim().replaceAll('.', '').replaceAll(',', '.'));
+
 String _pesan(ApiException e) =>
     e.details.isEmpty ? e.message : e.details.values.join('\n');
 
@@ -329,7 +333,7 @@ class _FormModalState extends State<_FormModal> {
         'tipe': 'modal',
         'kategori': _kategori,
         'tanggal': _iso(_tanggal),
-        'jumlah_rp': _angka(_jumlah.text),
+        'jumlah_rp': _rupiah(_jumlah.text),
         if (_ket.text.trim().isNotEmpty) 'keterangan': _ket.text.trim(),
       });
       if (mounted) {
@@ -386,7 +390,7 @@ class _FormModalState extends State<_FormModal> {
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(labelText: 'Jumlah (Rp)'),
                 validator: (v) {
-                  final double? n = _angka(v ?? '');
+                  final double? n = _rupiah(v ?? '');
                   return (n == null || n <= 0) ? 'Isi angka lebih dari 0' : null;
                 },
               ),
@@ -449,7 +453,7 @@ class _FormPanenState extends State<_FormPanen> {
     super.dispose();
   }
 
-  double get _total => (_angka(_bobot.text) ?? 0) * (_angka(_harga.text) ?? 0);
+  double get _total => (_angka(_bobot.text) ?? 0) * (_rupiah(_harga.text) ?? 0);
 
   Future<void> _simpan() async {
     if (!(_form.currentState?.validate() ?? false)) {
@@ -464,7 +468,7 @@ class _FormPanenState extends State<_FormPanen> {
         'tanggal': _iso(_tanggal),
         'jumlah_ekor': int.tryParse(_ekor.text.trim()),
         'bobot_total_kg': _angka(_bobot.text),
-        'harga_per_kg': _angka(_harga.text),
+        'harga_per_kg': _rupiah(_harga.text),
       });
       if (mounted) {
         Navigator.pop(context, true);
@@ -493,8 +497,8 @@ class _FormPanenState extends State<_FormPanen> {
     }
   }
 
-  String? _wajib(String? v, {bool bulat = false}) {
-    final double? n = _angka(v ?? '');
+  String? _wajib(String? v, {bool bulat = false, bool rp = false}) {
+    final double? n = rp ? _rupiah(v ?? '') : _angka(v ?? '');
     if (n == null || n <= 0) {
       return 'Isi angka lebih dari 0';
     }
@@ -538,7 +542,7 @@ class _FormPanenState extends State<_FormPanen> {
                 controller: _harga,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(labelText: 'Harga per kg (Rp)'),
-                validator: _wajib,
+                validator: (v) => _wajib(v, rp: true),
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
