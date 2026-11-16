@@ -203,6 +203,18 @@ pendapatan `penjualan` sebesar bobot x harga, (3) mengubah siklus menjadi `seles
 Respons berisi `panen` (termasuk `bobot_rata_g` dan `total_rp`) dan `keuangan`
 (`total_modal`, `total_pendapatan`, `laba_rugi`). Rumus: laba rugi = total pendapatan - total modal.
 
+## Laporan
+### GET /laporan/perbandingan  (butuh login)
+Satu baris per siklus milik pengguna (terlama dulu) untuk dibandingkan. Filter opsional `?komoditas_id=`.
+`ringkasan` dihitung hanya dari siklus berstatus `selesai`.
+```json
+{ "siklus": [ { "id": 1, "label": "Kolam A1 · Siklus 3", "komoditas": "Lele", "status": "selesai",
+                "umur_hari": 60, "sr_persen": 92.5, "fcr": 1.18, "fcr_standar_maks": 1.3, "sr_standar_min": 85,
+                "total_modal": 7120000, "total_pendapatan": 9450000, "laba_rugi": 2330000 } ],
+  "ringkasan": { "jumlah_selesai": 1, "rata_sr_persen": 92.5, "rata_fcr": 1.18,
+                 "total_laba_rugi": 2330000, "terbaik": { "id": 1, "label": "Kolam A1 · Siklus 3", "laba_rugi": 2330000 } } }
+```
+
 ## Pengujian
 - `php backend/tests/HitungTest.php` menguji perhitungan estimasi panen dan validasi (tanpa database).
 - Seluruh endpoint di dokumen ini diuji lewat HTTP terhadap MySQL/MariaDB, termasuk

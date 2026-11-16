@@ -19,6 +19,7 @@ require __DIR__ . '/src/AuthController.php';
 require __DIR__ . '/src/KomoditasController.php';
 require __DIR__ . '/src/UnitController.php';
 require __DIR__ . '/src/SiklusController.php';
+require __DIR__ . '/src/LaporanController.php';
 
 $configFile = __DIR__ . '/config.php';
 if (!file_exists($configFile)) {
@@ -55,6 +56,8 @@ $router->add('POST', '/auth/login',    [$auth, 'login']);
 $router->add('GET',  '/auth/me',       [$auth, 'me']);
 
 $router->add('GET', '/komoditas', [new KomoditasController(), 'index']);
+
+$router->add('GET', '/laporan/perbandingan', [new LaporanController(), 'perbandingan']);
 
 $unit = new UnitController();
 $router->add('GET',    '/unit',        [$unit, 'index']);

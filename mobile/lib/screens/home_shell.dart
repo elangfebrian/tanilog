@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../core/theme.dart';
 import '../state/auth_state.dart';
+import 'laporan_screen.dart';
 import 'siklus_list_screen.dart';
 
 class HomeShell extends StatefulWidget {
@@ -14,20 +15,26 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   int _tab = 0;
+  Key _laporanKey = UniqueKey(); // diganti tiap tab Laporan dibuka agar datanya segar
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = <Widget>[
       const SiklusListScreen(beranda: true),
       const SiklusListScreen(beranda: false),
-      const _Segera('Laporan'),
+      LaporanScreen(key: _laporanKey),
       const _Akun(),
     ];
     return Scaffold(
       body: IndexedStack(index: _tab, children: pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
-        onDestinationSelected: (i) => setState(() => _tab = i),
+        onDestinationSelected: (i) => setState(() {
+          _tab = i;
+          if (i == 2) {
+            _laporanKey = UniqueKey();
+          }
+        }),
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Beranda'),
           NavigationDestination(icon: Icon(Icons.autorenew), label: 'Siklus'),
@@ -37,16 +44,6 @@ class _HomeShellState extends State<HomeShell> {
       ),
     );
   }
-}
-
-class _Segera extends StatelessWidget {
-  const _Segera(this.nama);
-
-  final String nama;
-
-  @override
-  Widget build(BuildContext context) =>
-      Center(child: Text('$nama segera hadir', style: AppText.caption));
 }
 
 class _Akun extends StatelessWidget {
