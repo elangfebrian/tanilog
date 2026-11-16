@@ -7,6 +7,7 @@ import '../core/theme.dart';
 import '../state/siklus_state.dart';
 import 'catat_screen.dart';
 import 'grafik_screen.dart';
+import 'jadwal_pakan_screen.dart';
 import 'keuangan_screen.dart';
 
 num? _n(dynamic v) => v is num ? v : (v is String ? num.tryParse(v) : null);
@@ -134,6 +135,21 @@ class _SiklusDetailScreenState extends State<SiklusDetailScreen> {
                               : '-'),
                         ]),
                       ]),
+                      if (sik?['status'] == 'aktif') ...[
+                        OutlinedButton.icon(
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => JadwalPakanScreen(
+                                siklusId: widget.siklusId,
+                                judul: '${sik?['unit_nama']} · Siklus ${sik?['siklus_ke']}',
+                              ),
+                            ),
+                          ),
+                          icon: const Icon(Icons.alarm),
+                          label: const Text('Jadwal pakan'),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
                       OutlinedButton.icon(
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute<void>(

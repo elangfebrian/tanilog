@@ -203,6 +203,26 @@ pendapatan `penjualan` sebesar bobot x harga, (3) mengubah siklus menjadi `seles
 Respons berisi `panen` (termasuk `bobot_rata_g` dan `total_rp`) dan `keuangan`
 (`total_modal`, `total_pendapatan`, `laba_rugi`). Rumus: laba rugi = total pendapatan - total modal.
 
+## Jadwal pakan dan pengingat
+| Metode | Alamat | Fungsi |
+|--------|--------|--------|
+| GET | `/siklus/{id}/jadwal-pakan` | Daftar jadwal (urut jam) |
+| POST | `/siklus/{id}/jadwal-pakan` | Tambah `{ "jam": "07:00", "jumlah_kg": 12.5 }` |
+| PUT | `/siklus/{id}/jadwal-pakan/{jid}` | Ubah `{ "jam", "jumlah_kg", "aktif"? }` |
+| DELETE | `/siklus/{id}/jadwal-pakan/{jid}` | Hapus jadwal |
+| GET | `/pengingat/hari-ini` | Jadwal aktif semua siklus aktif beserta status hari ini |
+
+`jam` berformat `HH:MM` 24 jam. **Status** tiap jadwal pada `/pengingat/hari-ini`:
+catatan pakan hari ini dicocokkan berurutan dengan jadwal (N catatan = N jadwal paling awal `sudah`).
+Sisanya: `waktunya` bila jam server sudah lewat jadwal sampai 30 menit, `terlambat` bila lebih dari itu,
+`menunggu` bila belum tiba. `belum_total` = jumlah jadwal yang belum `sudah`.
+```json
+{ "tanggal": "2026-11-17", "jam_server": "10:15", "belum_total": 2,
+  "pengingat": [ { "siklus_id": 2, "label": "Kolam A1 · Siklus 4", "komoditas": "Lele",
+    "jadwal": [ { "jadwal_id": 1, "jam": "07:00", "jumlah_kg": 12.5, "status": "sudah" },
+                { "jadwal_id": 2, "jam": "12:00", "jumlah_kg": 12.5, "status": "menunggu" } ] } ] }
+```
+
 ## Laporan
 ### GET /laporan/perbandingan  (butuh login)
 Satu baris per siklus milik pengguna (terlama dulu) untuk dibandingkan. Filter opsional `?komoditas_id=`.
@@ -221,4 +241,4 @@ Satu baris per siklus milik pengguna (terlama dulu) untuk dibandingkan. Filter o
   pemisahan data antar pengguna (data milik pengguna lain selalu dijawab 404).
 
 ## Rencana endpoint berikutnya
-`/siklus/{id}/jadwal-pakan` (untuk pengingat), `/admin/komoditas`, `/admin/standar`.
+`/admin/komoditas`, `/admin/standar`.

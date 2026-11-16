@@ -20,6 +20,7 @@ require __DIR__ . '/src/KomoditasController.php';
 require __DIR__ . '/src/UnitController.php';
 require __DIR__ . '/src/SiklusController.php';
 require __DIR__ . '/src/LaporanController.php';
+require __DIR__ . '/src/JadwalController.php';
 
 $configFile = __DIR__ . '/config.php';
 if (!file_exists($configFile)) {
@@ -58,6 +59,13 @@ $router->add('GET',  '/auth/me',       [$auth, 'me']);
 $router->add('GET', '/komoditas', [new KomoditasController(), 'index']);
 
 $router->add('GET', '/laporan/perbandingan', [new LaporanController(), 'perbandingan']);
+
+$jadwal = new JadwalController();
+$router->add('GET',    '/pengingat/hari-ini',               [$jadwal, 'hariIni']);
+$router->add('GET',    '/siklus/{id}/jadwal-pakan',         [$jadwal, 'index']);
+$router->add('POST',   '/siklus/{id}/jadwal-pakan',         [$jadwal, 'store']);
+$router->add('PUT',    '/siklus/{id}/jadwal-pakan/{jid}',   [$jadwal, 'update']);
+$router->add('DELETE', '/siklus/{id}/jadwal-pakan/{jid}',   [$jadwal, 'destroy']);
 
 $unit = new UnitController();
 $router->add('GET',    '/unit',        [$unit, 'index']);

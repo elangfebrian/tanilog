@@ -5,6 +5,7 @@ import '../core/fmt.dart';
 import '../core/theme.dart';
 import '../state/auth_state.dart';
 import '../state/siklus_state.dart';
+import '../widgets/pengingat_card.dart';
 import '../widgets/siklus_card.dart';
 import 'siklus_baru_screen.dart';
 import 'siklus_detail_screen.dart';
@@ -46,6 +47,7 @@ class _SiklusListScreenState extends State<SiklusListScreen> {
               Text(auth.nama.isEmpty ? 'Halo' : 'Halo, ${auth.nama}', style: AppText.h1),
               Text(Fmt.hariIni(DateTime.now()), style: AppText.caption),
               const SizedBox(height: 16),
+              PengingatCard(data: st.pengingat),
               const Text('Siklus aktif', style: AppText.h2),
             ] else
               const Text('Semua siklus', style: AppText.h1),

@@ -13,6 +13,9 @@ class SiklusState extends ChangeNotifier {
   bool loading = false;
   String? error;
 
+  /// Pengingat pakan hari ini (GET /pengingat/hari-ini): satu entri per siklus aktif berjadwal.
+  List<Map<String, dynamic>> pengingat = <Map<String, dynamic>>[];
+
   Future<void> muat() async {
     loading = true;
     error = null;
@@ -26,8 +29,28 @@ class SiklusState extends ChangeNotifier {
     } catch (_) {
       error = 'Data dari server tidak dapat dibaca.';
     }
+    await muatPengingat();
     loading = false;
     notifyListeners();
+  }
+
+  /// Gagal memuat pengingat tidak boleh merusak daftar siklus, jadi errornya diabaikan.
+  Future<void> muatPengingat() async {
+    try {
+      final Map<String, dynamic> res = await api.get('/pengingat/hari-ini');
+      pengingat = ((res['pengingat'] as List<dynamic>?) ?? <dynamic>[])
+          .map((e) => Map<String, dynamic>.from(e as Map))
+          .toList();
+    } catch (_) {
+      pengingat = <Map<String, dynamic>>[];
+    }
+    notifyListeners();
+  }
+
+  /// Menandai satu jadwal sudah dikerjakan: mencatat pakan sejumlah yang dijadwalkan.
+  Future<void> beriPakan(int siklusId, double jumlahKg) async {
+    await api.post('/siklus/$siklusId/pakan', <String, dynamic>{'jumlah_kg': jumlahKg});
+    await muat();
   }
 
   /// Detail lengkap satu siklus (siklus + ringkasan + keuangan).
