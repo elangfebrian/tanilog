@@ -7,6 +7,7 @@ import '../core/theme.dart';
 import '../state/siklus_state.dart';
 import 'catat_screen.dart';
 import 'grafik_screen.dart';
+import 'keuangan_screen.dart';
 
 num? _n(dynamic v) => v is num ? v : (v is String ? num.tryParse(v) : null);
 
@@ -159,6 +160,24 @@ class _SiklusDetailScreenState extends State<SiklusDetailScreen> {
                               color: (_n(k['laba_rugi']) ?? 0) < 0 ? AppColors.danger : AppColors.primary),
                         ),
                       ]),
+                      OutlinedButton.icon(
+                        onPressed: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => KeuanganScreen(
+                                siklusId: widget.siklusId,
+                                judul: '${sik?['unit_nama']} · Siklus ${sik?['siklus_ke']}',
+                                aktif: sik?['status'] == 'aktif',
+                              ),
+                            ),
+                          );
+                          if (mounted) {
+                            _muat();
+                          }
+                        },
+                        icon: const Icon(Icons.receipt_long),
+                        label: const Text('Laba rugi dan panen'),
+                      ),
                     ],
                   ),
                 ),
