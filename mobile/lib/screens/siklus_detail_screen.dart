@@ -5,6 +5,7 @@ import '../core/api_client.dart';
 import '../core/fmt.dart';
 import '../core/theme.dart';
 import '../state/siklus_state.dart';
+import 'catat_screen.dart';
 
 num? _n(dynamic v) => v is num ? v : (v is String ? num.tryParse(v) : null);
 
@@ -67,6 +68,27 @@ class _SiklusDetailScreenState extends State<SiklusDetailScreen> {
         backgroundColor: AppColors.bg,
         title: Text(sik == null ? 'Detail siklus' : '${sik['unit_nama']} · Siklus ${sik['siklus_ke']}'),
       ),
+      floatingActionButton: (sik != null && sik['status'] == 'aktif')
+          ? FloatingActionButton.extended(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              onPressed: () async {
+                final bool? berubah = await Navigator.of(context).push<bool>(
+                  MaterialPageRoute<bool>(
+                    builder: (_) => CatatScreen(
+                      siklusId: widget.siklusId,
+                      judul: '${sik['unit_nama']} · Siklus ${sik['siklus_ke']}',
+                    ),
+                  ),
+                );
+                if (berubah == true) {
+                  _muat();
+                }
+              },
+              icon: const Icon(Icons.edit_note),
+              label: const Text('Catat hari ini'),
+            )
+          : null,
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -83,7 +105,7 @@ class _SiklusDetailScreenState extends State<SiklusDetailScreen> {
               : RefreshIndicator(
                   onRefresh: _muat,
                   child: ListView(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
                     children: [
                       _Kartu(judul: 'Estimasi panen', anak: [
                         Text(Fmt.tanggal(est['tanggal'] as String?), style: AppText.value),
