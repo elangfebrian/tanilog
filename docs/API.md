@@ -203,6 +203,26 @@ pendapatan `penjualan` sebesar bobot x harga, (3) mengubah siklus menjadi `seles
 Respons berisi `panen` (termasuk `bobot_rata_g` dan `total_rp`) dan `keuangan`
 (`total_modal`, `total_pendapatan`, `laba_rugi`). Rumus: laba rugi = total pendapatan - total modal.
 
+## Admin
+Hanya peran `admin` (peran dicek ulang ke database). Peternak mendapat 403. Akun admin dibuat manual di database.
+
+| Metode | Alamat | Fungsi |
+|--------|--------|--------|
+| GET | `/admin/ringkasan` | Jumlah peternak, unit, siklus aktif, siklus selesai, komoditas aktif |
+| GET | `/admin/komoditas` | Semua komoditas (termasuk nonaktif) + `jumlah_siklus`, `jumlah_titik` |
+| POST | `/admin/komoditas` | Tambah komoditas |
+| PUT | `/admin/komoditas/{id}` | Ubah komoditas (kirim seluruh isian, `aktif` boleh false) |
+| GET | `/admin/komoditas/{id}/standar` | Kurva standar pertumbuhan |
+| PUT | `/admin/komoditas/{id}/standar` | Ganti seluruh kurva dalam satu transaksi |
+
+Body komoditas: `{ "nama", "jenis": "ikan|unggas", "durasi_panen_hari", "target_bobot_panen_g", "fcr_standar_maks", "sr_standar_min", "aktif" }`.
+Nama harus unik (409). Komoditas nonaktif tidak muncul di `GET /komoditas` (pilihan siklus baru),
+tetapi siklus yang sudah berjalan tetap memakainya.
+
+Body kurva: `{ "standar": [ { "hari_ke": 0, "bobot_standar_g": 5 }, { "hari_ke": 60, "bobot_standar_g": 250 } ] }`.
+Minimal 2 titik, hari tidak boleh kembar, dan bobot tidak boleh turun seiring hari (422), sebab estimasi
+panen mencari umur setara lewat interpolasi pada kurva ini. Bila ada kesalahan, kurva lama tidak berubah.
+
 ## Jadwal pakan dan pengingat
 | Metode | Alamat | Fungsi |
 |--------|--------|--------|
@@ -241,4 +261,4 @@ Satu baris per siklus milik pengguna (terlama dulu) untuk dibandingkan. Filter o
   pemisahan data antar pengguna (data milik pengguna lain selalu dijawab 404).
 
 ## Rencana endpoint berikutnya
-`/admin/komoditas`, `/admin/standar`.
+(belum ada).

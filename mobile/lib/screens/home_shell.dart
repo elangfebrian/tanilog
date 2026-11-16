@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../core/theme.dart';
 import '../state/auth_state.dart';
+import 'admin_screen.dart';
 import 'laporan_screen.dart';
 import 'siklus_list_screen.dart';
 
@@ -63,6 +64,16 @@ class _Akun extends StatelessWidget {
             Text(auth.nama, style: AppText.title),
             Text(auth.email, style: AppText.caption),
             const SizedBox(height: 24),
+            if (auth.isAdmin) ...[
+              FilledButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const AdminScreen()),
+                ),
+                icon: const Icon(Icons.admin_panel_settings),
+                label: const Text('Panel admin'),
+              ),
+              const SizedBox(height: 12),
+            ],
             OutlinedButton(onPressed: auth.logout, child: const Text('Keluar')),
           ],
         ),

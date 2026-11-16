@@ -26,6 +26,7 @@ class AuthState extends ChangeNotifier {
   bool get loggedIn => _token != null;
   String get nama => (_user?['nama'] as String?) ?? '';
   String get email => (_user?['email'] as String?) ?? '';
+  bool get isAdmin => _user?['role'] == 'admin';
 
   Future<void> restore() async {
     try {

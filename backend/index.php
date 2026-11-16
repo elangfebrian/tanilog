@@ -21,6 +21,7 @@ require __DIR__ . '/src/UnitController.php';
 require __DIR__ . '/src/SiklusController.php';
 require __DIR__ . '/src/LaporanController.php';
 require __DIR__ . '/src/JadwalController.php';
+require __DIR__ . '/src/AdminController.php';
 
 $configFile = __DIR__ . '/config.php';
 if (!file_exists($configFile)) {
@@ -59,6 +60,14 @@ $router->add('GET',  '/auth/me',       [$auth, 'me']);
 $router->add('GET', '/komoditas', [new KomoditasController(), 'index']);
 
 $router->add('GET', '/laporan/perbandingan', [new LaporanController(), 'perbandingan']);
+
+$admin = new AdminController();
+$router->add('GET',  '/admin/ringkasan',              [$admin, 'ringkasan']);
+$router->add('GET',  '/admin/komoditas',              [$admin, 'komoditasIndex']);
+$router->add('POST', '/admin/komoditas',              [$admin, 'komoditasStore']);
+$router->add('PUT',  '/admin/komoditas/{id}',         [$admin, 'komoditasUpdate']);
+$router->add('GET',  '/admin/komoditas/{id}/standar', [$admin, 'standarIndex']);
+$router->add('PUT',  '/admin/komoditas/{id}/standar', [$admin, 'standarReplace']);
 
 $jadwal = new JadwalController();
 $router->add('GET',    '/pengingat/hari-ini',               [$jadwal, 'hariIni']);
